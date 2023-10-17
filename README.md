@@ -1058,4 +1058,4 @@ RewriteRule \.(jpg|jpeg|png)$ /public/images/abimanyu.png [L]'
 ```
 
 ### Result
-![Alt text](img/20.png)
+![Alt text](img/hasilno20.png)
