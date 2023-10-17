@@ -1040,7 +1040,7 @@ Untuk menyelasaikan soal tersebut kita perlu menambahkan konfigurasi server alia
 
 ### Result
 ![image](Img/19.png)  
-![image](Img/11.png)  
+![image](Img/hasilno11.png)  
 
 ## Soal 20 
 > Karena website www.parikesit.abimanyu.yyy.com semakin banyak pengunjung dan banyak gambar gambar random, maka ubahlah request gambar yang memiliki substring “abimanyu” akan diarahkan menuju abimanyu.png.
