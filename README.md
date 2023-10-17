@@ -671,7 +671,7 @@ ping www.rjp.baratayudha.abimanyu.D05.com -c 5
 Langkah selanjutnya adalah dengan melakukan pengecekan konfigurasi dengan benar pada Nginx dan aturan load balancing yang sesuai. Disini, kita bisa menggunakan algoritma yang sesuai untuk konfigurasinya. Selanjutnya, adalah melakukan load balancing pada masing-masing worker dengan mengunggah aplikasi atau layanan web. Bila konfigurasi dan deploymenet telah selesai dilakukan, maka `Arjuna` akan bertindak sebagai load balancer yang akan mendistribusikan lalu lintas web ke worker yang tersedia
 
 ### Script
-**Arjuna sebagai Load Balancing**
+**Arjuna sebagai Load Balancer**
 ```
 echo 'upstream backend {
   server 10.24.3.5; # IP PrabuKusuma
@@ -767,194 +767,359 @@ lynx http://arjuna.D05.com
     - Abimanyu:8002
     - Wisanggeni:8003
 
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
+Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing pada client nakula
 
 ### Script
-**Nakula dan Sadewa**
+**Arjuna sebagai Load Balancer**
+
+```echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install bind9 nginx -y
+cd /etc/nginx/sites-available
+echo ' upstream arjuna.D05  {
+        server 10.24.3.5:8001; #IP Prabakusuma
+        server 10.24.3.4:8002; #IP Abimanyu
+        server 10.24.3.6:8003; #IP Wisanggeni
+ }
+
+ server {
+        listen 80;
+        server_name arjuna.D05.com;
+
+        location / {
+        proxy_pass http://arjuna.D05;
+        }
+ }' > lb-arjuna.D05
+ln -s /etc/nginx/sites-available/lb-arjuna.D05 /etc/nginx/sites-enabled
+service nginx restart```
+
+### Script
+**Abimanyu, Prabakusuma, dan Wisanggeni sebagai WebServer**
 ```
-ping google.com -c 5
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update && apt install nginx php php-fpm -y
+apt install wget -y
+apt-get install unzip -y
+mkdir /var/www
+wget 'https://drive.google.com/uc?export=download&id=17tAM_XDKYWDvF-JJix1x7txvTBEax7vX' -O arjuna.yyy.com.zip
+unzip arjuna.yyy.com.zip
+mv arjuna.yyy.com arjuna.D05
+mv arjuna.D05 /var/www
+echo 'server {
+
+        listen 8001;
+
+        root /var/www/arjuna.D05;
+
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+                        try_files $uri $uri/ /index.php?$query_string;
+        }
+
+        # pass PHP scripts to FastCGI server
+        location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.0-fpm.sock;
+        }
+
+ location ~ /\.ht {
+                        deny all;
+        }
+
+        error_log /var/log/nginx/arjuna.D05.log;
+        access_log /var/log/nginx/arjuna.D05_access.log;
+ }' > arjuna.D05
+ln -s /etc/nginx/sites-available/arjuna.D05 /etc/nginx/sites-enabled
+service php7.0-fpm start
+service nginx restart
+```
+### Script
+**Nakula**
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install dnsutils
+apt-get install lynx
+echo 'nameserver 10.24.2.2 # IP DNS Master
+nameserver 10.24.3.2 # IP DNS Slave' > /etc/resolv.conf
 ```
 
 ### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
+![Alt text](img/10(1).png)
 
 
 ## Soal 11
 > Selain menggunakan Nginx, lakukan konfigurasi Apache Web Server pada worker Abimanyu dengan web server www.abimanyu.yyy.com. Pertama dibutuhkan web server dengan DocumentRoot pada /var/www/abimanyu.yyy
 
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
+Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing pada client 'Nakula'
 
 ### Script
-**Nakula dan Sadewa**
+**Abimanyu sebagai WebServer**
 ```
-ping google.com -c 5
+cd /etc/apache2/sites-available
+cp 000-default.conf abimanyu.D05.com.conf
+echo "<VirtualHost *:80>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/abimanyu.D05
+        ServerName abimanyu.D05.com
+        ServerAlias www.abimanyu.D05.com
+        ServerAlias 10.24.3.4
+        <Directory /var/www/abimanyu.D05/index.php/home>
+         Options +Indexes
+        </Directory>
+
+        Alias '/home' '/var/www/abimanyu.D05/index.php/home'
+
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+</VirtualHost>" > abimanyu.D05.com.conf
+a2ensite abimanyu.D05.com
+wget 'https://drive.google.com/uc?export=download&id=1a4V23hwK9S7hQEDEcv9FL14UkkrHc-Zc' -O abimanyu.yyy.com.zip
+unzip abimanyu.yyy.com.zip
+mv abimanyu.yyy.com abimanyu.D05
+mv abimanyu.D05 /var/www
+rm -r abimanyu.yyy.com.zip
+service apache2 restart
 ```
 
 ### Result
+![Alt text](img/11.png)
 
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
 
 ## Soal 12 
 > Setelah itu ubahlah agar url www.abimanyu.yyy.com/index.php/home menjadi www.abimanyu.yyy.com/home.
 
+Untuk menyelesaikan soal tersebut kita perlu untuk melakukan metode alias pada abimanyu WebServer. 
 Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
 
 ### Script
-**Nakula dan Sadewa**
+**Abimanyu WebServer**
 ```
-ping google.com -c 5
+Alias '/home' '/var/www/abimanyu.D05/index.php/home'
 ```
 
 ### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
+![Alt text](img/11.png)
 
 
-## Soal 13 
+## Soal 13, 14, 15, 16 
 > Selain itu, pada subdomain www.parikesit.abimanyu.yyy.com, DocumentRoot disimpan pada /var/www/parikesit.abimanyu.yyy
-
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
-
-### Script
-**Nakula dan Sadewa**
-```
-ping google.com -c 5
-```
-
-### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
-
-## Soal 14 
 > Pada subdomain tersebut folder /public hanya dapat melakukan directory listing sedangkan pada folder /secret tidak dapat diakses (403 Forbidden).
-
-
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
-
-### Script
-**Nakula dan Sadewa**
-```
-ping google.com -c 5
-```
-
-### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
-
-
-## Soal 15 
 > Buatlah kustomisasi halaman error pada folder /error untuk mengganti error kode pada Apache. Error kode yang perlu diganti adalah 404 Not Found dan 403 Forbidden.
-
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
-
-### Script
-**Nakula dan Sadewa**
-```
-ping google.com -c 5
-```
-
-### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
-
-## Soal 16 
 > Buatlah suatu konfigurasi virtual host agar file asset www.parikesit.abimanyu.yyy.com/public/js menjadi 
 www.parikesit.abimanyu.yyy.com/js
 
-
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
+Untuk menyelesaikan soal tersebut kita perlu menambah beberapa script pada Abimanyu WebServer. Agar directory /secret tidak dapat diakses kita perlu menambahkan kode berikut `<Directory /var/www/parikesit.abimanyu.D05/secret>
+        Options -Indexes
+        Deny from all
+        </Directory>`, lalu untuk merubah kode eror menjadi custom, kita perlu menambahkan line berikut `ErrorDocument 404 /error/404.html`
+        `ErrorDocument 403 /error/403.html` pada file .conf. Lalu agar dapat diakses hanya dengan /js kita dapat mengubahnya menggunakan alias `Alias "/js" "/var/www/parikesit.abimanyu.D05/public/js"`
 
 ### Script
-**Nakula dan Sadewa**
+**Abimanyu WebServer**
 ```
-ping google.com -c 5
+cp 000-default.conf parikesit.abimanyu.D05.com
+echo "<VirtualHost *:80>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/parikesit.abimanyu.D05
+        ServerName parikesit.abimanyu.D05.com
+        ServerAlias www.parikesit.abimanyu.D05.com
+        ErrorDocument 404 /error/404.html
+        ErrorDocument 403 /error/403.html
+        <Directory /var/www/parikesit.abimanyu.D05/public>
+        Options +Indexes
+        </Directory>
+        <Directory /var/www/parikesit.abimanyu.D05/secret>
+        Options -Indexes
+        Deny from all
+        </Directory>
+        <Directory /var/www/parikesit.abimanyu.D05/public>
+                Options +Indexes
+        </Directory>
+
+        Alias "/js" "/var/www/parikesit.abimanyu.D05/public/js"
+        <Directory /var/www/parikesit.abimanyu.D05>
+                Options +FollowSymLinks -Multiviews
+                AllowOverride All
+        </Directory>
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog /error.log
+        CustomLog /access.log combined
+
+        <Directory /var/www/parikesit.abimanyu.D05>
+                Options +FollowSymLinks -Multiviews
+                AllowOverride All
+        </Directory>
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with a2disconf.
+        #Include conf-available/serve-cgi-bin.conf
+</VirtualHost>" > parikesit.abimanyu.D05.com.conf
+a2ensite parikesit.abimanyu.D05.com
+a2enmod rewrite
+wget 'https://drive.google.com/uc?export=download&id=1LdbYntiYVF_NVNgJis1GLCLPEGyIOreS' -O parikesit.abimanyu.yyy.com.zip
+unzip parikesit.abimanyu.yyy.com.zip
+mv parikesit.abimanyu.yyy.com parikesit.abimanyu.D05
+mv parikesit.abimanyu.D05 /var/www
+rm -r parikesit.abimanyu.yyy.com.zip
 ```
 
 ### Result
+![Alt text](img/13.png)
+![Alt text](img/13(1).png)
 
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
 
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
-
-## Soal 17 
+## Soal 17 dan 18 
 > Agar aman, buatlah konfigurasi agar www.rjp.baratayuda.abimanyu.yyy.com hanya dapat diakses melalui port 14000 dan 14400.
-
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
-
-### Script
-**Nakula dan Sadewa**
-```
-ping google.com -c 5
-```
-
-### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
-
-
-## Soal 18 
 > Untuk mengaksesnya buatlah autentikasi username berupa “Wayang” dan password “baratayudayyy” dengan yyy merupakan kode kelompok. Letakkan DocumentRoot pada /var/www/rjp.baratayuda.abimanyu.yyy.
 
+Untuk menyelesaikan soal tersebut kita perlu membuat script pada file `rjp.baratayuda.abimanyu.D05.com.conf` dengan memasukkan code berikut `<VirtualHost *:14000 *:14400>` dan mengubah file port.conf menjadi seperti di bawah ini. Lalu untuk mengamankan ketika mengakses sehingga harus menggunakan username dan password kita perlu menambahakan line berikut `<Directory '/var/www/rjp.baratayuda.abimanyu.D05'>
+                AuthType Basic
+                AuthName 'Restricted Content'
+                AuthUserFile /etc/apache2/.htpasswd
+                Require valid-user
+        </Directory>` pada file `rjp.baratayuda.D05.com.conf` 
 
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
 
 ### Script
-**Nakula dan Sadewa**
+**Abimanyu**
 ```
-ping google.com -c 5
+cd /etc/apache2/sites-available
+cp 000-default.conf rjp.baratayuda.abimanyu.D05.com.conf
+echo "<VirtualHost *:14000 *:14400>
+        # The ServerName directive sets the request scheme, hostname and port that
+        # the server uses to identify itself. This is used when creating
+        # redirection URLs. In the context of virtual hosts, the ServerName
+        # specifies what hostname must appear in the request's Host: header to
+        # match this virtual host. For the default virtual host (this file) this
+        # value is not decisive as it is used as a last resort host regardless.
+        # However, you must set it for any further virtual host explicitly.
+        #ServerName www.example.com
+
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/rjp.baratayuda.abimanyu.D05
+        ServerName rjp.baratayuda.abimanyu.D05.com
+        ServerAlias www.rjp.baratayuda.abimanyu.D05.com
+
+        <Directory '/var/www/rjp.baratayuda.abimanyu.D05'>
+                AuthType Basic
+                AuthName 'Restricted Content'
+                AuthUserFile /etc/apache2/.htpasswd
+                Require valid-user
+        </Directory>
+        # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+        # error, crit, alert, emerg.
+        # It is also possible to configure the loglevel for particular
+        # modules, e.g.
+        #LogLevel info ssl:warn
+
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+        # For most configuration files from conf-available/, which are
+        # enabled or disabled at a global level, it is possible to
+        # include a line for only one particular virtual host. For example the
+        # following line enables the CGI configuration for this host only
+        # after it has been globally disabled with "a2disconf".
+        #Include conf-available/serve-cgi-bin.conf
+</VirtualHost>"> rjp.baratayuda.abimanyu.D05.com.conf
+a2ensite rjp.baratayuda.abimanyu.D05.com
+echo 'Listen 80
+Listen 14000
+Listen 14400
+<IfModule ssl_module>
+        Listen 443
+</IfModule>
+
+<IfModule mod_gnutls.c>
+        Listen 443
+</IfModule>' > /etc/apache2/ports.conf
+wget 'https://drive.google.com/uc?export=download&id=1pPSP7yIR05JhSFG67RVzgkb-VcW9vQO6' -O rjp.baratayuda.abimanyu.yyy.com.zip
+unzip rjp.baratayuda.abimanyu.yyy.com.zip
+mv rjp.baratayuda.abimanyu.yyy.com rjp.baratayuda.abimanyu.D05
+mv rjp.baratayuda.abimanyu.D05 /var/www
+rm -r rjp.baratayuda.abimanyu.yyy.com.zip
+htpasswd -c -b /etc/apache2/.htpasswd Wayang baratayudad05
+service apache2 restart
 ```
 
 ### Result
+![Alt text](img/17.png)
+![Alt text](img/18.png)
 
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
 
 ## Soal 19 
 > Buatlah agar setiap kali mengakses IP dari Abimanyu akan secara otomatis dialihkan ke www.abimanyu.yyy.com (alias)
 
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
+Untuk menyelasaikan soal tersebut kita perlu menambahkan konfigurasi server alias seperti berikut `ServerAlias 10.24.3.4` pada file abimanyu.D05.com.conf 
 
 ### Script
-**Nakula dan Sadewa**
+**Abimanyu**
 ```
-ping google.com -c 5
+ ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/abimanyu.D05
+        ServerName abimanyu.D05.com
+        ServerAlias www.abimanyu.D05.com
+        ServerAlias 10.24.3.4
 ```
 
 ### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
+![Alt text](img/19.png)
+![Alt text](img/11.png)
 
 ## Soal 20 
 > Karena website www.parikesit.abimanyu.yyy.com semakin banyak pengunjung dan banyak gambar gambar random, maka ubahlah request gambar yang memiliki substring “abimanyu” akan diarahkan menuju abimanyu.png.
 
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
+Untuk menyelesaikan soal tersebut kita perlu membuat file .htaccess pada folder `/var/www/parikesit.abimanyuu.D05` dengan isi script di bawah ini 
 
 ### Script
-**Nakula dan Sadewa**
+**Abimanyu**
 ```
-ping google.com -c 5
+echo 'RewriteEngine On
+RewriteCond %{REQUEST_URI} !^/public/images/abimanyu.png
+RewriteCond %{REQUEST_URI} abimanyu
+RewriteRule \.(jpg|jpeg|png)$ /public/images/abimanyu.png [L]'
 ```
 
 ### Result
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
-
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/8603655c-dcf8-48ae-9804-797b36c5ea6d)
+![Alt text](img/20.png)
