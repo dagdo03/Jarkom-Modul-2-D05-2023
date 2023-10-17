@@ -683,10 +683,9 @@ service nginx restart
 Lakukan testing pada client dengan menggunakan kode berikut
 
 ```
-lynx http://192.173.3.5
-lynx http://192.173.3.4
-lynx http://192.173.3.6
-lynx http://192.173.3.3
+lynx http://10.24.3.5
+lynx http://10.24.3.4
+lynx http://10.24.3.6
 lynx http://arjuna.D05.com
 ```
 
