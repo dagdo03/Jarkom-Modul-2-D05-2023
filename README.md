@@ -691,7 +691,7 @@ lynx http://arjuna.D05.com
 ```
 
 ### Result
-![image](/img/10(1).png)
+![image](Img/hasilno10.png)
 
 
 
@@ -783,8 +783,7 @@ nameserver 10.24.3.2 # IP DNS Slave' > /etc/resolv.conf
 ```
 
 ### Result
-![image](img/10(1).png)
-
+![image](Img/hasilno10.png)
 
 ## Soal 11
 > Selain menggunakan Nginx, lakukan konfigurasi Apache Web Server pada worker Abimanyu dengan web server www.abimanyu.yyy.com. Pertama dibutuhkan web server dengan DocumentRoot pada /var/www/abimanyu.yyy
@@ -843,7 +842,7 @@ service apache2 restart
 ```
 
 ### Result
-![image](img/11.png)
+![image](Img/hasilno11.png)
 
 
 ## Soal 12 
@@ -859,7 +858,7 @@ Alias '/home' '/var/www/abimanyu.D05/index.php/home'
 ```
 
 ### Result
-![image](img/11.png)
+![image](Img/hasilno11.png)
 
 
 ## Soal 13, 14, 15, 16 
@@ -941,8 +940,8 @@ rm -r parikesit.abimanyu.yyy.com.zip
 ```
 
 ### Result
-![image](img/13.png)  
-![image](img/13(1).png)
+![image](Img/hasilno13.png)  
+![image](Img/hasilno13b.png)
 
 
 ## Soal 17 dan 18 
@@ -1020,8 +1019,8 @@ service apache2 restart
 ```
 
 ### Result
-![image](img/17.png)  
-![image](img/18.png)  
+![image](Img/hasilno17.png)  
+![image](Img/hasilno18.png)  
 
 
 ## Soal 19 
@@ -1040,8 +1039,8 @@ Untuk menyelasaikan soal tersebut kita perlu menambahkan konfigurasi server alia
 ```
 
 ### Result
-![image](img/19.png)  
-![image](img/11.png)  
+![image](Img/19.png)  
+![image](Img/11.png)  
 
 ## Soal 20 
 > Karena website www.parikesit.abimanyu.yyy.com semakin banyak pengunjung dan banyak gambar gambar random, maka ubahlah request gambar yang memiliki substring “abimanyu” akan diarahkan menuju abimanyu.png.
@@ -1058,4 +1057,4 @@ RewriteRule \.(jpg|jpeg|png)$ /public/images/abimanyu.png [L]'
 ```
 
 ### Result
-![image](img/hasilno20.png)
+![image](Img/hasilno20.png)
