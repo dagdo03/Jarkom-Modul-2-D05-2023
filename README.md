@@ -8,72 +8,6 @@
 |Sandyatama Fransisna Nugraha | 5025211196 | https://github.com/TamaFn | 
 
 # Laporan Resmi 
-## Daftar Soal dan Jawaban
-- [Laporan Resmi](#laporan-resmi)
-  - [Daftar Isi](#daftar-isi)
-  - [Topologi](#topologi)
-  - [Config](#config)
-  - [Konfigurasi IP Pada Masing" Node](#sebelum-memulai)
-- [Soal 1](#Soal-1)
-  - [Script](#script)
-  - [Result](#result)
-- [Soal 2](#Soal-2)
-  - [Script](#script-1)
-  - [Result](#result-1)
-- [Soal 3](#Soal-3)
-  - [Script](#script-2)
-  - [Result](#result-2)
-- [Soal 4](#Soal-4)
-  - [Script](#script-3)
-  - [Result](#result-3)
-- [Soal 5](#Soal-5)
-  - [Script](#script-4)
-  - [Result](#result-4)
-- [Soal 6](#Soal-6)
-  - [Script](#script-5)
-  - [Result](#result-5)
-- [Soal 7](#Soal-7)
-  - [Script](#script-6)
-  - [Result](#result-6)
-- [Soal 8](#Soal-8)
-  - [Script](#script-7)
-  - [Result](#result-7)
-- [Soal 9](#Soal-9)
-  - [Script](#script-8)
-  - [Result](#result-8)
-- [Soal 10](#Soal-10)
-  - [Script](#script-9)
-  - [Result](#result-9)
-- [Soal 11](#Soal-11)
-  - [Script](#script-10)
-  - [Result](#result-10)
-- [Soal 12](#Soal-12)
-  - [Script](#script-11)
-  - [Result](#result-11)
-- [Soal 13](#Soal-13)
-  - [Script](#script-12)
-  - [Result](#result-12)
-- [Soal 14](#Soal-14)
-  - [Script](#script-13)
-  - [Result](#result-13)
-- [Soal 15](#Soal-15)
-  - [Script](#script-14)
-  - [Result](#result-14)
-- [Soal 16](#Soal-16)
-  - [Script](#script-15)
-  - [Result](#result-15)
-- [Soal 17](#Soal-17)
-  - [Script](#script-16)
-  - [Result](#result-16)
-- [Soal 18](#Soal-18)
-  - [Script](#script-17)
-  - [Result](#result-17)
-- [Soal 19](#Soal-19)
-  - [Script](#script-18)
-  - [Result](#result-18)
-- [Soal 20](#Soal-20)
-  - [Script](#script-19)
-  - [Result](#result-19)
 
 ## Topologi Soal Model 2
 ![image](Img/Topologi.png)
@@ -757,8 +691,8 @@ lynx http://arjuna.D05.com
 ```
 
 ### Result
+![](img/10(1).png)
 
-![image](https://github.com/Caknoooo/simple-django-restful-api/assets/92671053/1d45043b-1756-49a2-9d4a-533547ec6a1c)
 
 
 ## Soal 10 
@@ -772,7 +706,8 @@ Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih d
 ### Script
 **Arjuna sebagai Load Balancer**
 
-```echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
 apt-get update
 apt-get install bind9 nginx -y
 cd /etc/nginx/sites-available
@@ -795,6 +730,7 @@ service nginx restart```
 
 ### Script
 **Abimanyu, Prabakusuma, dan Wisanggeni sebagai WebServer**
+```
 ```
 echo nameserver 192.168.122.1 > /etc/resolv.conf
 apt-get update && apt install nginx php php-fpm -y
@@ -914,7 +850,7 @@ service apache2 restart
 > Setelah itu ubahlah agar url www.abimanyu.yyy.com/index.php/home menjadi www.abimanyu.yyy.com/home.
 
 Untuk menyelesaikan soal tersebut kita perlu untuk melakukan metode alias pada abimanyu WebServer. 
-Sebelum mengerjakan perlu untuk melakukan [setting](#sebelum-memulai) terlebih dahulu. Disini kita perlu melakukan testing terhadap semua node yang ada. Disini kami melakukan testing ada client `nakula` dan `sadewa`
+
 
 ### Script
 **Abimanyu WebServer**
